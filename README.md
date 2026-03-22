@@ -1,10 +1,10 @@
 # Personal Task Tracker - Frontend
 
-Modern web frontend built with NextJS, Tailwind CSS, and React Query.
+Modern web frontend built with Next.js, Tailwind CSS, and React Query. Served via CloudFront CDN with Nginx reverse proxy for API routing.
 
 ## Tech Stack
 
-- **Framework**: NextJS (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Styling**: Tailwind CSS
 - **State Management**: React Query (TanStack Query)
 - **HTTP Client**: Axios
@@ -21,6 +21,26 @@ Modern web frontend built with NextJS, Tailwind CSS, and React Query.
 - ✅ Immediate UI updates after API calls
 - ✅ Clean, responsive design
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser["🌐 Browser"] --> CF["CloudFront CDN<br/>(HTTPS)"]
+    CF --> NGINX["Nginx :80<br/>(us-east-1 EC2)"]
+    NGINX -->|"/"| NextJS["Next.js :3001"]
+    NGINX -->|"/tasks<br/>/api/docs"| CF_API["API CloudFront<br/>(ap-southeast-1)"]
+    CF_API --> API["NestJS :3000"]
+```
+
+The frontend uses a same-origin pattern: browser JS calls `/tasks` on the same CloudFront domain, and Nginx proxies those requests to the API CloudFront distribution in another region.
+
+## Deployed URLs
+
+| Environment | URL |
+|-------------|-----|
+| Staging | https://d179mmtd1r518i.cloudfront.net |
+| Production | https://d1w6dngwkrqpvq.cloudfront.net |
+
 ## Development
 
 ```bash
@@ -36,6 +56,8 @@ Create `.env.local`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
+
+For deployed environments, `NEXT_PUBLIC_API_URL` is the **Frontend CloudFront domain** (same-origin), not the API domain directly.
 
 ## Project Structure
 
@@ -56,3 +78,7 @@ src/
 └── lib/
     └── api.ts              # Axios API client
 ```
+
+## Deployment
+
+Deployed via the [orchestration repo](https://github.com/nurulizyansyaza/personal-task-tracker) CI/CD pipeline. Runs on EC2 (us-east-1) behind CloudFront CDN with Nginx reverse proxy.
