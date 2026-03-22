@@ -44,29 +44,12 @@ export default function KanbanCard({ task, onEdit, onDelete, onToggleDone, isDra
         {...listeners}
         className="px-3 pt-3 pb-1 cursor-grab active:cursor-grabbing"
       >
-        <div className="flex items-start justify-between gap-2">
-          <h4 className={`text-sm font-medium text-gray-900 leading-snug break-words flex-1
-            ${task.status === TaskStatus.DONE ? 'line-through text-gray-400' : ''}`}>
-            {task.title}
-          </h4>
-          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-            <span className="text-gray-300 text-xs">⠿</span>
-          </div>
-        </div>
-        {task.description && (
-          <p className="text-xs text-gray-500 mt-1 line-clamp-2 break-words">
-            {task.description}
-          </p>
-        )}
-      </div>
-
-      {/* Actions area (not draggable) */}
-      <div className="px-3 pb-3 pt-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-start gap-2">
           {onToggleDone && (
             <button
-              onClick={(e) => { e.stopPropagation(); onToggleDone(task); }}
-              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleDone(task); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className={`w-4 h-4 mt-0.5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer
                 ${task.status === TaskStatus.DONE
                   ? 'bg-emerald-500 border-emerald-500'
                   : 'border-gray-300 hover:border-emerald-400'}`}
@@ -80,13 +63,33 @@ export default function KanbanCard({ task, onEdit, onDelete, onToggleDone, isDra
               )}
             </button>
           )}
-          <span className="text-[10px] text-gray-400">
-            {new Date(task.created_at).toLocaleDateString('en-MY', {
-              day: 'numeric',
-              month: 'short',
-            })}
-          </span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className={`text-sm font-medium text-gray-900 leading-snug break-words flex-1
+                ${task.status === TaskStatus.DONE ? 'line-through text-gray-400' : ''}`}>
+                {task.title}
+              </h4>
+              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <span className="text-gray-300 text-xs">&#x2807;</span>
+              </div>
+            </div>
+            {task.description && (
+              <p className="text-xs text-gray-500 mt-1 line-clamp-2 break-words">
+                {task.description}
+              </p>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* Actions area (not draggable) */}
+      <div className="px-3 pb-3 pt-2 flex items-center justify-between">
+        <span className="text-[10px] text-gray-400">
+          {new Date(task.created_at).toLocaleDateString('en-MY', {
+            day: 'numeric',
+            month: 'short',
+          })}
+        </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(task); }}

@@ -88,9 +88,9 @@ The diagram below shows how components nest inside each other:
 graph TD
  Layout["layout.tsx<br/><small>Providers + Toaster</small>"]
  Page["page.tsx<br/><small>Home Page</small>"]
- Board["KanbanBoard<br/><small>DnD context · columns · modals</small>"]
+ Board["KanbanBoard<br/><small>DnD context · sort dropdown · columns · modals</small>"]
  Col["KanbanColumn ×3<br/><small>Droppable · header · empty state</small>"]
- Card["KanbanCard ×N<br/><small>Draggable · title · desc · actions</small>"]
+ Card["KanbanCard ×N<br/><small>Draggable · checkbox · title · desc · actions</small>"]
  Skel["KanbanSkeleton<br/><small>Pulse animation while loading</small>"]
  TModal["TaskModal<br/><small>Create / Edit form + validation</small>"]
  DModal["DeleteConfirmModal<br/><small>Confirm before deleting</small>"]
@@ -104,7 +104,7 @@ graph TD
  Col --> Skel
 ```
 
-**Key idea:** `KanbanBoard` owns all state — which modal is open, which task is selected, and the drag-and-drop context. Each column simply receives its list of cards.
+**Key idea:** `KanbanBoard` owns all state — which modal is open, which task is selected, the sort order, and the drag-and-drop context. It delegates to four custom hooks: `useTaskModal`, `useDeleteConfirmation`, `useTaskSort`, and the React Query hooks in `useTasks`.
 
 ---
 
@@ -126,14 +126,44 @@ sequenceDiagram
  User->>Card: Drops on another column
  Card->>Board: onDragEnd (new column = new status)
  Board->>Hook: mutate({ id, status })
- Hook->>API: PATCH /tasks/:id
+ Hook->>API: PUT /tasks/:id
  API-->>Hook: 200 OK (updated task)
  Hook->>Board: onSuccess → invalidate query cache
- Board->>Toast: success("Task moved!")
+ Board->>Toast: success("Moved to [column]")
  Note over Board: Board re-renders with fresh data
 ```
 
 If the API call fails, the board shows an **error toast** and the task stays in its original column (no optimistic updates that could mislead you).
+
+---
+
+## Mark as Done Flow
+
+Clicking the checkbox beside a task title toggles between Done and To Do:
+
+```mermaid
+sequenceDiagram
+ participant User
+ participant Card as KanbanCard
+ participant Board as KanbanBoard
+ participant Hook as useUpdateTask
+ participant API as Backend API
+ participant Cache as localStorage
+
+ User->>Card: Clicks checkbox
+ Card->>Board: onToggleDone(task)
+ Board->>Hook: mutate({ id, status: DONE or TODO })
+ Hook->>API: PUT /tasks/:id
+ alt API available
+  API-->>Hook: 200 OK
+  Hook->>Board: invalidate query cache
+  API-->>Cache: syncFromApi (on next getAll)
+ else API unreachable
+  Hook->>Cache: update local cache
+  Hook->>Board: return cached task
+ end
+ Board->>Board: Toast success/error
+```
 
 ---
 
