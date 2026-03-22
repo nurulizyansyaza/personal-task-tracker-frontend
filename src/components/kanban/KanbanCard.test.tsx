@@ -82,6 +82,19 @@ describe('KanbanCard', () => {
     expect(card?.className).toContain('opacity-50');
   });
 
+  it('should render drag handle', () => {
+    render(<KanbanCard task={mockTask} onEdit={mockOnEdit} onDelete={mockOnDelete} />);
+    expect(screen.getByTitle('Drag to move')).toBeInTheDocument();
+  });
+
+  it('should render edit and delete buttons always visible (no hover required)', () => {
+    const { container } = render(<KanbanCard task={mockTask} onEdit={mockOnEdit} onDelete={mockOnDelete} />);
+    const editBtn = screen.getByTitle('Edit task');
+    const deleteBtn = screen.getByTitle('Delete task');
+    expect(editBtn.closest('[class*="opacity-0"]')).toBeNull();
+    expect(deleteBtn.closest('[class*="opacity-0"]')).toBeNull();
+  });
+
   describe('toggle done checkbox', () => {
     const mockOnToggleDone = jest.fn();
 

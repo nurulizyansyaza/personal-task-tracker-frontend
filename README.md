@@ -90,7 +90,7 @@ graph TD
  Page["page.tsx<br/><small>Home Page</small>"]
  Board["KanbanBoard<br/><small>DnD context · sort dropdown · columns · modals</small>"]
  Col["KanbanColumn ×3<br/><small>Droppable · header · empty state</small>"]
- Card["KanbanCard ×N<br/><small>Draggable · checkbox · title · desc · actions</small>"]
+ Card["KanbanCard ×N<br/><small>checkbox · title · edit/delete/drag (top-right) · date (bottom-right)</small>"]
  Skel["KanbanSkeleton<br/><small>Pulse animation while loading</small>"]
  TModal["TaskModal<br/><small>Create / Edit form + validation</small>"]
  DModal["DeleteConfirmModal<br/><small>Confirm before deleting</small>"]
@@ -205,7 +205,7 @@ Wraps every API call in a React Query hook so the UI stays in sync automatically
 
 ## Testing
 
-The project has **94 tests** across **12 test suites** using Jest, React Testing Library, and @testing-library/user-event.
+The project has **96 tests** across **12 test suites** using Jest, React Testing Library, and @testing-library/user-event.
 
 ### Run Tests
 
@@ -231,7 +231,7 @@ npm test -- --coverage
 | Delete Hook | `useDeleteConfirmation.test.ts` | 5 | Open/close, confirm, guard when no task |
 | Sort Hook | `useTaskSort.test.ts` | 8 | All sort options, cycling, invalid index, undefined |
 | Status Config | `status-config.test.ts` | 4 | Labels, colors, column config, column order |
-| Kanban Card | `KanbanCard.test.tsx` | 11 | Rendering, edit/delete, checkbox toggle, status styles |
+| Kanban Card | `KanbanCard.test.tsx` | 13 | Rendering, edit/delete, drag handle, always-visible actions, checkbox toggle, status styles |
 | Kanban Column | `KanbanColumn.test.tsx` | 8 | Header text, card rendering, empty states, loading skeleton |
 | Kanban Skeleton | `KanbanSkeleton.test.tsx` | 3 | Default skeleton count, custom count |
 | Task Modal | `TaskModal.test.tsx` | 12 | Create/edit modes, validation, form submission, loading state |
@@ -254,7 +254,7 @@ src/
 │   ├── index.ts # Barrel export for clean imports
 │   ├── KanbanBoard.tsx # Main board: DnD context, columns, modals
 │   ├── KanbanColumn.tsx # Droppable column: header, card list, empty state
-│   ├── KanbanCard.tsx # Draggable card: title, description, action buttons
+│   ├── KanbanCard.tsx # Task card: checkbox, title, edit/delete/drag icons (top-right), date (bottom-right)
 │   ├── KanbanSkeleton.tsx # Animated loading placeholder
 │   ├── TaskModal.tsx # Create / Edit modal with form validation
 │   └── DeleteConfirmModal.tsx # "Are you sure?" confirmation modal
