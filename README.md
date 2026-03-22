@@ -167,7 +167,7 @@ Wraps every API call in a React Query hook so the UI stays in sync automatically
 
 ## Testing
 
-The project has **52 tests** across **7 test suites** using Jest, React Testing Library, and @testing-library/user-event.
+The project has **67 tests** across **10 test suites** using Jest, React Testing Library, and @testing-library/user-event.
 
 ### Run Tests
 
@@ -188,6 +188,9 @@ npm test -- --coverage
 |-------|------|:-----:|----------------|
 | API Client | `api.test.ts` | 10 | getAll, getById, create, update, delete, error handling |
 | React Query Hooks | `useTasks.test.ts` | 6 | All four hooks, cache invalidation |
+| Task Modal Hook | `useTaskModal.test.ts` | 6 | Open/close, create/edit modes, submit callbacks |
+| Delete Hook | `useDeleteConfirmation.test.ts` | 5 | Open/close, confirm, guard when no task |
+| Status Config | `status-config.test.ts` | 4 | Labels, colors, column config, column order |
 | Kanban Card | `KanbanCard.test.tsx` | 7 | Rendering, edit/delete actions, status-based styles |
 | Kanban Column | `KanbanColumn.test.tsx` | 8 | Header text, card rendering, empty states, loading skeleton |
 | Kanban Skeleton | `KanbanSkeleton.test.tsx` | 3 | Default skeleton count, custom count |
@@ -207,28 +210,27 @@ src/
 │
 ├── components/
 │ ├── Providers.tsx # QueryClientProvider (React Query)
-│ ├── kanban/
-│ │ ├── index.ts # Barrel export for clean imports
-│ │ ├── KanbanBoard.tsx # Main board: DnD context, columns, modals
-│ │ ├── KanbanColumn.tsx # Droppable column: header, card list, empty state
-│ │ ├── KanbanCard.tsx # Draggable card: title, description, action buttons
-│ │ ├── KanbanSkeleton.tsx # Animated loading placeholder
-│ │ ├── TaskModal.tsx # Create / Edit modal with form validation
-│ │ └── DeleteConfirmModal.tsx # "Are you sure?" confirmation modal
-│ │
-│ ├── StatusFilter.tsx # (legacy) Status filter buttons
-│ ├── TaskForm.tsx # (legacy) Inline add/edit form
-│ ├── TaskItem.tsx # (legacy) Single task list item
-│ └── TaskList.tsx # (legacy) Task list view
+│ └── kanban/
+│   ├── index.ts # Barrel export for clean imports
+│   ├── KanbanBoard.tsx # Main board: DnD context, columns, modals
+│   ├── KanbanColumn.tsx # Droppable column: header, card list, empty state
+│   ├── KanbanCard.tsx # Draggable card: title, description, action buttons
+│   ├── KanbanSkeleton.tsx # Animated loading placeholder
+│   ├── TaskModal.tsx # Create / Edit modal with form validation
+│   └── DeleteConfirmModal.tsx # "Are you sure?" confirmation modal
 │
 ├── hooks/
-│ └── useTasks.ts # React Query CRUD hooks
+│ ├── useTasks.ts # React Query CRUD hooks
+│ ├── useTaskModal.ts # Modal open/close/submit state management
+│ └── useDeleteConfirmation.ts # Delete confirmation state management
 │
-└── lib/
- └── api.ts # Axios instance + taskApi helper
+├── lib/
+│ ├── api.ts # Axios instance + taskApi helper
+│ └── status-config.ts # Shared status labels, colors, column config
+│
+└── test/
+  └── mocks.ts # Shared mock task factory for tests
 ```
-
-> **Legacy components** — `StatusFilter`, `TaskForm`, `TaskItem`, and `TaskList` are from an earlier list-based UI. They still work but the Kanban board is now the primary interface.
 
 ---
 

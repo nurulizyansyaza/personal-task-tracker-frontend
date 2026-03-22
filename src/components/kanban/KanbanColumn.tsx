@@ -3,29 +3,9 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Task, TaskStatus } from 'personal-task-tracker-core';
+import { COLUMN_CONFIG } from '@/lib/status-config';
 import KanbanCard from './KanbanCard';
 import KanbanSkeleton from './KanbanSkeleton';
-
-const columnConfig: Record<TaskStatus, { title: string; headerColor: string; bgColor: string; countColor: string }> = {
-  [TaskStatus.TODO]: {
-    title: 'To Do',
-    headerColor: 'bg-gray-100 text-gray-700',
-    bgColor: 'bg-gray-50/50',
-    countColor: 'bg-gray-200 text-gray-600',
-  },
-  [TaskStatus.IN_PROGRESS]: {
-    title: 'In Progress',
-    headerColor: 'bg-amber-50 text-amber-700',
-    bgColor: 'bg-amber-50/30',
-    countColor: 'bg-amber-100 text-amber-600',
-  },
-  [TaskStatus.DONE]: {
-    title: 'Done',
-    headerColor: 'bg-emerald-50 text-emerald-700',
-    bgColor: 'bg-emerald-50/30',
-    countColor: 'bg-emerald-100 text-emerald-600',
-  },
-};
 
 interface KanbanColumnProps {
   status: TaskStatus;
@@ -45,7 +25,7 @@ export default function KanbanColumn({
   onAdd,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
-  const config = columnConfig[status];
+  const config = COLUMN_CONFIG[status];
   const taskIds = tasks.map((t) => t.id);
 
   return (

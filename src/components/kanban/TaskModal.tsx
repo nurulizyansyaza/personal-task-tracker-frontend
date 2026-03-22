@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Task, TaskStatus, CreateTaskDTO, UpdateTaskDTO } from 'personal-task-tracker-core';
+import { STATUS_LABELS } from '@/lib/status-config';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -137,9 +138,9 @@ function TaskModalInner({
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all text-gray-900"
               >
-                <option value={TaskStatus.TODO}>To Do</option>
-                <option value={TaskStatus.IN_PROGRESS}>In Progress</option>
-                <option value={TaskStatus.DONE}>Done</option>
+                <option value={TaskStatus.TODO}>{STATUS_LABELS[TaskStatus.TODO]}</option>
+                <option value={TaskStatus.IN_PROGRESS}>{STATUS_LABELS[TaskStatus.IN_PROGRESS]}</option>
+                <option value={TaskStatus.DONE}>{STATUS_LABELS[TaskStatus.DONE]}</option>
               </select>
             </div>
           )}

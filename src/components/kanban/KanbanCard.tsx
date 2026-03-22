@@ -3,12 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Task, TaskStatus } from 'personal-task-tracker-core';
-
-const statusColor: Record<TaskStatus, string> = {
-  [TaskStatus.TODO]: 'border-l-gray-400',
-  [TaskStatus.IN_PROGRESS]: 'border-l-amber-400',
-  [TaskStatus.DONE]: 'border-l-emerald-400',
-};
+import { STATUS_BORDER_COLOR } from '@/lib/status-config';
 
 interface KanbanCardProps {
   task: Task;
@@ -38,7 +33,7 @@ export default function KanbanCard({ task, onEdit, onDelete, isDragging }: Kanba
     <div
       ref={setNodeRef}
       style={style}
-      className={`group bg-white rounded-lg border-l-4 ${statusColor[task.status]} shadow-sm 
+      className={`group bg-white rounded-lg border-l-4 ${STATUS_BORDER_COLOR[task.status]} shadow-sm 
         hover:shadow-md transition-all duration-150 select-none
         ${dragging ? 'opacity-50 shadow-lg scale-105 rotate-2' : ''}`}
     >

@@ -3,16 +3,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import DeleteConfirmModal from './DeleteConfirmModal';
-import { TaskStatus, Task } from 'personal-task-tracker-core';
+import { createMockTask } from '@/test/mocks';
 
-const mockTask: Task = {
-  id: 1,
-  title: 'Task to Delete',
-  description: null,
-  status: TaskStatus.TODO,
-  created_at: '2026-01-15T10:00:00Z',
-  updated_at: '2026-01-15T10:00:00Z',
-};
+const mockTask = createMockTask({ id: 1, title: 'Task to Delete' });
 
 describe('DeleteConfirmModal', () => {
   const mockOnClose = jest.fn();

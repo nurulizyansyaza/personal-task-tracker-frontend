@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import KanbanColumn from './KanbanColumn';
-import { TaskStatus, Task } from 'personal-task-tracker-core';
+import { TaskStatus } from 'personal-task-tracker-core';
+import { createMockTask } from '@/test/mocks';
 import userEvent from '@testing-library/user-event';
 
 // Mock dnd-kit
@@ -27,9 +28,9 @@ jest.mock('@dnd-kit/utilities', () => ({
   CSS: { Transform: { toString: () => undefined } },
 }));
 
-const mockTasks: Task[] = [
-  { id: 1, title: 'Task 1', description: null, status: TaskStatus.TODO, created_at: '2026-01-15T10:00:00Z', updated_at: '2026-01-15T10:00:00Z' },
-  { id: 2, title: 'Task 2', description: 'Desc', status: TaskStatus.TODO, created_at: '2026-01-16T10:00:00Z', updated_at: '2026-01-16T10:00:00Z' },
+const mockTasks = [
+  createMockTask({ id: 1, title: 'Task 1' }),
+  createMockTask({ id: 2, title: 'Task 2', description: 'Desc' }),
 ];
 
 describe('KanbanColumn', () => {

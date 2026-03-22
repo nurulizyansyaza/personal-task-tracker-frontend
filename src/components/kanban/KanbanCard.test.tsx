@@ -3,7 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import KanbanCard from './KanbanCard';
-import { TaskStatus, Task } from 'personal-task-tracker-core';
+import { TaskStatus } from 'personal-task-tracker-core';
+import { createMockTask } from '@/test/mocks';
 
 // Mock @dnd-kit/sortable
 jest.mock('@dnd-kit/sortable', () => ({
@@ -21,14 +22,12 @@ jest.mock('@dnd-kit/utilities', () => ({
   CSS: { Transform: { toString: () => undefined } },
 }));
 
-const mockTask: Task = {
+const mockTask = createMockTask({
   id: 1,
   title: 'Test Task',
   description: 'Test description',
   status: TaskStatus.TODO,
-  created_at: '2026-01-15T10:00:00Z',
-  updated_at: '2026-01-15T10:00:00Z',
-};
+});
 
 describe('KanbanCard', () => {
   const mockOnEdit = jest.fn();

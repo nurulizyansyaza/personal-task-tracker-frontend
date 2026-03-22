@@ -12,15 +12,16 @@ import {
   useSensors,
   closestCorners,
 } from '@dnd-kit/core';
-import { Task, TaskStatus, CreateTaskDTO, UpdateTaskDTO } from 'personal-task-tracker-core';
+import { Task, TaskStatus } from 'personal-task-tracker-core';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
+import { useTaskModal } from '@/hooks/useTaskModal';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { COLUMNS, STATUS_LABELS } from '@/lib/status-config';
 import KanbanColumn from './KanbanColumn';
 import KanbanCard from './KanbanCard';
 import TaskModal from './TaskModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import toast from 'react-hot-toast';
-
-const COLUMNS: TaskStatus[] = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
 
 export default function KanbanBoard() {
   const { data: tasks, isLoading, isError, error } = useTasks();
@@ -29,10 +30,16 @@ export default function KanbanBoard() {
   const deleteTask = useDeleteTask();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+
+  const {
+    modalOpen, modalMode, editingTask,
+    openCreateModal, openEditModal, closeModal, handleModalSubmit,
+  } = useTaskModal({ createTask, updateTask });
+
+  const {
+    deletingTask,
+    openDeleteConfirm, closeDeleteConfirm, handleDeleteConfirm,
+  } = useDeleteConfirmation({ deleteTask });
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -69,17 +76,11 @@ export default function KanbanBoard() {
     const targetStatus = over.id as TaskStatus;
     if (!COLUMNS.includes(targetStatus) || task.status === targetStatus) return;
 
-    const statusLabels: Record<TaskStatus, string> = {
-      [TaskStatus.TODO]: 'To Do',
-      [TaskStatus.IN_PROGRESS]: 'In Progress',
-      [TaskStatus.DONE]: 'Done',
-    };
-
     updateTask.mutate(
       { id: task.id, dto: { status: targetStatus } },
       {
         onSuccess: () => {
-          toast.success(`Moved to ${statusLabels[targetStatus]}`);
+          toast.success(`Moved to ${STATUS_LABELS[targetStatus]}`);
         },
         onError: () => {
           toast.error('Could not move task. Please try again.');
@@ -91,58 +92,6 @@ export default function KanbanBoard() {
   const handleDragCancel = useCallback(() => {
     setActiveTask(null);
   }, []);
-
-  const openCreateModal = useCallback(() => {
-    setModalMode('create');
-    setEditingTask(null);
-    setModalOpen(true);
-  }, []);
-
-  const openEditModal = useCallback((task: Task) => {
-    setModalMode('edit');
-    setEditingTask(task);
-    setModalOpen(true);
-  }, []);
-
-  const handleModalSubmit = useCallback((data: CreateTaskDTO | UpdateTaskDTO) => {
-    if (modalMode === 'create') {
-      createTask.mutate(data as CreateTaskDTO, {
-        onSuccess: () => {
-          toast.success('Task created!');
-          setModalOpen(false);
-        },
-        onError: () => {
-          toast.error('Could not create task. Please try again.');
-        },
-      });
-    } else if (editingTask) {
-      updateTask.mutate(
-        { id: editingTask.id, dto: data as UpdateTaskDTO },
-        {
-          onSuccess: () => {
-            toast.success('Task updated!');
-            setModalOpen(false);
-          },
-          onError: () => {
-            toast.error('Could not update task. Please try again.');
-          },
-        },
-      );
-    }
-  }, [modalMode, editingTask, createTask, updateTask]);
-
-  const handleDeleteConfirm = useCallback(() => {
-    if (!deletingTask) return;
-    deleteTask.mutate(deletingTask.id, {
-      onSuccess: () => {
-        toast.success('Task deleted');
-        setDeletingTask(null);
-      },
-      onError: () => {
-        toast.error('Could not delete task. Please try again.');
-      },
-    });
-  }, [deletingTask, deleteTask]);
 
   if (isError) {
     return (
@@ -177,7 +126,7 @@ export default function KanbanBoard() {
               tasks={tasksByStatus[status]}
               isLoading={isLoading}
               onEdit={openEditModal}
-              onDelete={setDeletingTask}
+              onDelete={openDeleteConfirm}
               onAdd={status === TaskStatus.TODO ? openCreateModal : undefined}
             />
           ))}
@@ -201,7 +150,7 @@ export default function KanbanBoard() {
         isOpen={modalOpen}
         mode={modalMode}
         task={editingTask}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         onSubmit={handleModalSubmit}
         isLoading={createTask.isPending || updateTask.isPending}
       />
@@ -209,7 +158,7 @@ export default function KanbanBoard() {
       <DeleteConfirmModal
         isOpen={!!deletingTask}
         task={deletingTask}
-        onClose={() => setDeletingTask(null)}
+        onClose={closeDeleteConfirm}
         onConfirm={handleDeleteConfirm}
         isLoading={deleteTask.isPending}
       />
