@@ -27,9 +27,12 @@ Drag tasks between columns, create and edit them in modals, and watch status upd
 
 - **Kanban board** with three columns — *To Do*, *In Progress*, and *Done*
 - **Drag-and-drop** task cards between columns; status auto-updates on drop
+- **Mark as done** with a single-click checkbox on each card (toggles between Done and To Do)
+- **Sort tasks** by creation date (newest/oldest) or status via a dropdown
 - **Create tasks** via a modal form with title and description
 - **Edit tasks** in the same modal (pre-filled with current values)
 - **Delete tasks** with a confirmation modal (no accidental deletes)
+- **Offline fallback** — tasks are cached in localStorage; the board still works when the API is unreachable
 - **Toast notifications** for every action — success *and* error
 - **Loading skeletons** while data is being fetched
 - **Responsive layout** — single column on mobile, three columns on desktop
@@ -138,17 +141,22 @@ If the API call fails, the board shows an **error toast** and the task stays in 
 
 All server communication lives in two files:
 
-### `lib/api.ts` — Axios Client
+### `lib/api.ts` — Axios Client with Offline Fallback
 
-Creates a configured Axios instance pointing at `NEXT_PUBLIC_API_URL`. Exposes a `taskApi` object:
+Creates a configured Axios instance pointing at `NEXT_PUBLIC_API_URL`. Exposes a `taskApi` object.
+When the API is unreachable, `getAll`, `create`, `update`, and `delete` fall back to `localStorage` so the board remains functional offline.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `taskApi.getAll()` | `GET /tasks` | Fetch every task |
-| `taskApi.getById(id)` | `GET /tasks/:id` | Fetch a single task |
-| `taskApi.create(data)` | `POST /tasks` | Create a new task |
-| `taskApi.update(id, data)` | `PATCH /tasks/:id` | Update title, description, or status |
-| `taskApi.delete(id)` | `DELETE /tasks/:id` | Remove a task |
+| Method | Endpoint | Offline Behaviour |
+|--------|----------|-------------------|
+| `taskApi.getAll()` | `GET /tasks` | Returns cached tasks from localStorage |
+| `taskApi.getById(id)` | `GET /tasks/:id` | No fallback (throws) |
+| `taskApi.create(data)` | `POST /tasks` | Creates with a negative local ID |
+| `taskApi.update(id, data)` | `PUT /tasks/:id` | Updates the local cache |
+| `taskApi.delete(id)` | `DELETE /tasks/:id` | Removes from local cache |
+
+### `lib/local-storage.ts` — localStorage Cache
+
+Persists tasks under the `ptt_tasks_cache` key. Synced automatically on every successful API fetch.
 
 ### `hooks/useTasks.ts` — React Query Hooks
 
@@ -167,7 +175,7 @@ Wraps every API call in a React Query hook so the UI stays in sync automatically
 
 ## Testing
 
-The project has **67 tests** across **10 test suites** using Jest, React Testing Library, and @testing-library/user-event.
+The project has **94 tests** across **12 test suites** using Jest, React Testing Library, and @testing-library/user-event.
 
 ### Run Tests
 
@@ -186,12 +194,14 @@ npm test -- --coverage
 
 | Suite | File | Tests | What It Covers |
 |-------|------|:-----:|----------------|
-| API Client | `api.test.ts` | 10 | getAll, getById, create, update, delete, error handling |
+| API Client | `api.test.ts` | 13 | getAll, getById, create, update, delete, offline fallback |
+| Local Storage | `local-storage.test.ts` | 10 | CRUD, sync from API, clear, malformed data |
 | React Query Hooks | `useTasks.test.ts` | 6 | All four hooks, cache invalidation |
 | Task Modal Hook | `useTaskModal.test.ts` | 6 | Open/close, create/edit modes, submit callbacks |
 | Delete Hook | `useDeleteConfirmation.test.ts` | 5 | Open/close, confirm, guard when no task |
+| Sort Hook | `useTaskSort.test.ts` | 8 | All sort options, cycling, invalid index, undefined |
 | Status Config | `status-config.test.ts` | 4 | Labels, colors, column config, column order |
-| Kanban Card | `KanbanCard.test.tsx` | 7 | Rendering, edit/delete actions, status-based styles |
+| Kanban Card | `KanbanCard.test.tsx` | 11 | Rendering, edit/delete, checkbox toggle, status styles |
 | Kanban Column | `KanbanColumn.test.tsx` | 8 | Header text, card rendering, empty states, loading skeleton |
 | Kanban Skeleton | `KanbanSkeleton.test.tsx` | 3 | Default skeleton count, custom count |
 | Task Modal | `TaskModal.test.tsx` | 12 | Create/edit modes, validation, form submission, loading state |
@@ -221,11 +231,13 @@ src/
 │
 ├── hooks/
 │ ├── useTasks.ts # React Query CRUD hooks
+│ ├── useTaskSort.ts # Client-side sort by date or status
 │ ├── useTaskModal.ts # Modal open/close/submit state management
 │ └── useDeleteConfirmation.ts # Delete confirmation state management
 │
 ├── lib/
-│ ├── api.ts # Axios instance + taskApi helper
+│ ├── api.ts # Axios instance + taskApi helper (with offline fallback)
+│ ├── local-storage.ts # localStorage cache for offline support
 │ └── status-config.ts # Shared status labels, colors, column config
 │
 └── test/
@@ -293,7 +305,9 @@ Every user action produces feedback via **react-hot-toast**:
 | Create task | "Task created!" | "Failed to create task" |
 | Edit task | "Task updated!" | "Failed to update task" |
 | Delete task | "Task deleted!" | "Failed to delete task" |
-| Drag & drop | "Task moved!" | "Failed to move task" |
+| Drag & drop | "Moved to [column]" | "Could not move task" |
+| Mark as done | "Task completed!" | "Could not update task" |
+| Unmark done | "Task reopened" | "Could not update task" |
 
 **If the API is completely unreachable**, the board shows a full-screen error state with a friendly message and a retry button — no cryptic error dumps.
 
@@ -312,4 +326,4 @@ See the root [LICENSE](../LICENSE) file for details.
 | [personal-task-tracker](https://github.com/nurulizyansyaza/personal-task-tracker) | Orchestration — CI/CD, Docker, AWS infra | — |
 | [personal-task-tracker-core](https://github.com/nurulizyansyaza/personal-task-tracker-core) | Shared TypeScript library — types, validation, errors | 42 |
 | [personal-task-tracker-api](https://github.com/nurulizyansyaza/personal-task-tracker-api) | NestJS REST API with security middleware | 84 |
-| [personal-task-tracker-frontend](https://github.com/nurulizyansyaza/personal-task-tracker-frontend) | Next.js Kanban dashboard | 52 |
+| [personal-task-tracker-frontend](https://github.com/nurulizyansyaza/personal-task-tracker-frontend) | Next.js Kanban dashboard | 94 |

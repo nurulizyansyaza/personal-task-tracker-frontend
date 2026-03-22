@@ -13,6 +13,7 @@ interface KanbanColumnProps {
   isLoading?: boolean;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onToggleDone?: (task: Task) => void;
   onAdd?: () => void;
 }
 
@@ -22,6 +23,7 @@ export default function KanbanColumn({
   isLoading,
   onEdit,
   onDelete,
+  onToggleDone,
   onAdd,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
@@ -62,7 +64,7 @@ export default function KanbanColumn({
         ) : (
           <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
             {tasks.map((task) => (
-              <KanbanCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+              <KanbanCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} onToggleDone={onToggleDone} />
             ))}
           </SortableContext>
         )}

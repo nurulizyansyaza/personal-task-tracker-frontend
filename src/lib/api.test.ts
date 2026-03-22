@@ -3,8 +3,7 @@ import axios from 'axios';
 import { TaskStatus } from 'personal-task-tracker-core';
 
 jest.mock('axios', () => {
-  const mockAxios = {
-    create: jest.fn(() => mockAxios),
+  const mockAxios: Record<string, unknown> = {
     get: jest.fn(),
     post: jest.fn(),
     put: jest.fn(),
@@ -14,6 +13,7 @@ jest.mock('axios', () => {
       response: { use: jest.fn() },
     },
   };
+  mockAxios.create = jest.fn(() => mockAxios);
   return { __esModule: true, default: mockAxios };
 });
 
@@ -48,9 +48,10 @@ describe('taskApi', () => {
       expect(mockInstance.get).toHaveBeenCalledWith('/tasks', { params: { status: TaskStatus.DONE } });
     });
 
-    it('should propagate errors', async () => {
+    it('should fall back to localStorage on network error', async () => {
       mockInstance.get.mockRejectedValue(new Error('Network Error'));
-      await expect(taskApi.getAll()).rejects.toThrow('Network Error');
+      const result = await taskApi.getAll();
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
@@ -113,6 +114,30 @@ describe('taskApi', () => {
 
       await taskApi.delete(1);
       expect(mockInstance.delete).toHaveBeenCalledWith('/tasks/1');
+    });
+
+    it('should fall back to localStorage on delete error', async () => {
+      mockInstance.delete.mockRejectedValue(new Error('Network Error'));
+      await expect(taskApi.delete(1)).resolves.toBeUndefined();
+    });
+  });
+
+  describe('offline fallback', () => {
+    it('should create task locally when API fails', async () => {
+      mockInstance.post.mockRejectedValue(new Error('Network Error'));
+      const result = await taskApi.create({ title: 'Offline Task' });
+      expect(result.title).toBe('Offline Task');
+      expect(result.id).toBeLessThan(0);
+    });
+
+    it('should sync tasks to localStorage on successful getAll', async () => {
+      const mockTasks = [{ id: 1, title: 'Task 1', status: TaskStatus.TODO }];
+      mockInstance.get.mockResolvedValue({ data: { success: true, data: mockTasks } });
+      await taskApi.getAll();
+      // Subsequent offline call should return cached data
+      mockInstance.get.mockRejectedValue(new Error('Network Error'));
+      const cached = await taskApi.getAll();
+      expect(cached).toEqual(mockTasks);
     });
   });
 });

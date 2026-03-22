@@ -16,6 +16,7 @@ import { Task, TaskStatus } from 'personal-task-tracker-core';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 import { useTaskModal } from '@/hooks/useTaskModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { useTaskSort, SORT_OPTIONS } from '@/hooks/useTaskSort';
 import { COLUMNS, STATUS_LABELS } from '@/lib/status-config';
 import KanbanColumn from './KanbanColumn';
 import KanbanCard from './KanbanCard';
@@ -30,6 +31,7 @@ export default function KanbanBoard() {
   const deleteTask = useDeleteTask();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const { sortedTasks, currentSort, sortIndex, setSortOption } = useTaskSort(tasks);
 
   const {
     modalOpen, modalMode, editingTask,
@@ -52,13 +54,13 @@ export default function KanbanBoard() {
       [TaskStatus.IN_PROGRESS]: [],
       [TaskStatus.DONE]: [],
     };
-    tasks?.forEach((task) => {
+    sortedTasks?.forEach((task) => {
       if (grouped[task.status]) {
         grouped[task.status].push(task);
       }
     });
     return grouped;
-  }, [tasks]);
+  }, [sortedTasks]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const task = event.active.data.current?.task as Task | undefined;
@@ -101,6 +103,21 @@ export default function KanbanBoard() {
     );
   }, [updateTask]);
 
+  const handleToggleDone = useCallback((task: Task) => {
+    const newStatus = task.status === TaskStatus.DONE ? TaskStatus.TODO : TaskStatus.DONE;
+    updateTask.mutate(
+      { id: task.id, dto: { status: newStatus } },
+      {
+        onSuccess: () => {
+          toast.success(newStatus === TaskStatus.DONE ? 'Task completed!' : 'Task reopened');
+        },
+        onError: () => {
+          toast.error('Could not update task. Please try again.');
+        },
+      },
+    );
+  }, [updateTask]);
+
   const handleDragCancel = useCallback(() => {
     setActiveTask(null);
   }, []);
@@ -123,6 +140,23 @@ export default function KanbanBoard() {
 
   return (
     <>
+      {/* Sort control */}
+      <div className="flex items-center justify-end mb-3">
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort-select" className="text-xs text-gray-500">Sort:</label>
+          <select
+            id="sort-select"
+            value={sortIndex}
+            onChange={(e) => setSortOption(Number(e.target.value))}
+            className="text-xs bg-white border border-gray-200 rounded-md px-2 py-1 text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          >
+            {SORT_OPTIONS.map((opt, idx) => (
+              <option key={idx} value={idx}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -139,6 +173,7 @@ export default function KanbanBoard() {
               isLoading={isLoading}
               onEdit={openEditModal}
               onDelete={openDeleteConfirm}
+              onToggleDone={handleToggleDone}
               onAdd={status === TaskStatus.TODO ? openCreateModal : undefined}
             />
           ))}

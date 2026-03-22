@@ -81,4 +81,32 @@ describe('KanbanCard', () => {
     const card = container.firstElementChild;
     expect(card?.className).toContain('opacity-50');
   });
+
+  describe('toggle done checkbox', () => {
+    const mockOnToggleDone = jest.fn();
+
+    beforeEach(() => mockOnToggleDone.mockClear());
+
+    it('should render checkbox when onToggleDone is provided', () => {
+      render(<KanbanCard task={mockTask} onEdit={mockOnEdit} onDelete={mockOnDelete} onToggleDone={mockOnToggleDone} />);
+      expect(screen.getByTitle('Mark as done')).toBeInTheDocument();
+    });
+
+    it('should not render checkbox when onToggleDone is not provided', () => {
+      render(<KanbanCard task={mockTask} onEdit={mockOnEdit} onDelete={mockOnDelete} />);
+      expect(screen.queryByTitle('Mark as done')).not.toBeInTheDocument();
+    });
+
+    it('should call onToggleDone when checkbox is clicked', async () => {
+      render(<KanbanCard task={mockTask} onEdit={mockOnEdit} onDelete={mockOnDelete} onToggleDone={mockOnToggleDone} />);
+      await userEvent.click(screen.getByTitle('Mark as done'));
+      expect(mockOnToggleDone).toHaveBeenCalledWith(mockTask);
+    });
+
+    it('should show checked state for done tasks', () => {
+      const doneTask = { ...mockTask, status: TaskStatus.DONE };
+      render(<KanbanCard task={doneTask} onEdit={mockOnEdit} onDelete={mockOnDelete} onToggleDone={mockOnToggleDone} />);
+      expect(screen.getByTitle('Mark as to do')).toBeInTheDocument();
+    });
+  });
 });

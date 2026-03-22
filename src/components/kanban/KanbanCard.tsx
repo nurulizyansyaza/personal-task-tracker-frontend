@@ -9,10 +9,11 @@ interface KanbanCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onToggleDone?: (task: Task) => void;
   isDragging?: boolean;
 }
 
-export default function KanbanCard({ task, onEdit, onDelete, isDragging }: KanbanCardProps) {
+export default function KanbanCard({ task, onEdit, onDelete, onToggleDone, isDragging }: KanbanCardProps) {
   const {
     attributes,
     listeners,
@@ -61,12 +62,31 @@ export default function KanbanCard({ task, onEdit, onDelete, isDragging }: Kanba
 
       {/* Actions area (not draggable) */}
       <div className="px-3 pb-3 pt-2 flex items-center justify-between">
-        <span className="text-[10px] text-gray-400">
-          {new Date(task.created_at).toLocaleDateString('en-MY', {
-            day: 'numeric',
-            month: 'short',
-          })}
-        </span>
+        <div className="flex items-center gap-2">
+          {onToggleDone && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleDone(task); }}
+              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0
+                ${task.status === TaskStatus.DONE
+                  ? 'bg-emerald-500 border-emerald-500'
+                  : 'border-gray-300 hover:border-emerald-400'}`}
+              title={task.status === TaskStatus.DONE ? 'Mark as to do' : 'Mark as done'}
+              aria-label={task.status === TaskStatus.DONE ? 'Mark as to do' : 'Mark as done'}
+            >
+              {task.status === TaskStatus.DONE && (
+                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </button>
+          )}
+          <span className="text-[10px] text-gray-400">
+            {new Date(task.created_at).toLocaleDateString('en-MY', {
+              day: 'numeric',
+              month: 'short',
+            })}
+          </span>
+        </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(task); }}
