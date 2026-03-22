@@ -33,8 +33,7 @@ describe('TaskModal', () => {
       title: 'Existing Task',
       description: 'Existing desc',
       status: TaskStatus.IN_PROGRESS,
-      created_at: '2026-01-15T10:00:00Z',
-      updated_at: '2026-01-15T10:00:00Z',
+      created_at: new Date('2026-01-15T10:00:00Z'),
     };
     render(
       <TaskModal isOpen={true} mode="edit" task={task} onClose={mockOnClose} onSubmit={mockOnSubmit} />
@@ -109,8 +108,7 @@ describe('TaskModal', () => {
     const task = {
       id: 1, title: 'Task', description: null,
       status: TaskStatus.TODO,
-      created_at: '2026-01-15T10:00:00Z',
-      updated_at: '2026-01-15T10:00:00Z',
+      created_at: new Date('2026-01-15T10:00:00Z'),
     };
     render(
       <TaskModal isOpen={true} mode="edit" task={task} onClose={mockOnClose} onSubmit={mockOnSubmit} />

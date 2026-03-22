@@ -9,8 +9,7 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
     title: `Task ${id}`,
     description: null,
     status: TaskStatus.TODO,
-    created_at: '2026-01-15T10:00:00Z',
-    updated_at: '2026-01-15T10:00:00Z',
+    created_at: new Date('2026-01-15T10:00:00Z'),
     ...overrides,
   };
 }

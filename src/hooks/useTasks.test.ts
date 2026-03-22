@@ -35,7 +35,7 @@ describe('useTasks', () => {
 
   it('should fetch all tasks', async () => {
     const mockTasks = [
-      { id: 1, title: 'Task 1', status: TaskStatus.TODO, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { id: 1, title: 'Task 1', status: TaskStatus.TODO, created_at: new Date() },
     ];
     mockedApi.getAll.mockResolvedValue(mockTasks);
 
@@ -48,7 +48,7 @@ describe('useTasks', () => {
 
   it('should fetch tasks with status filter', async () => {
     const mockTasks = [
-      { id: 2, title: 'Done Task', status: TaskStatus.DONE, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { id: 2, title: 'Done Task', status: TaskStatus.DONE, created_at: new Date() },
     ];
     mockedApi.getAll.mockResolvedValue(mockTasks);
 
@@ -72,7 +72,7 @@ describe('useCreateTask', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('should create a task', async () => {
-    const newTask = { id: 1, title: 'New', status: TaskStatus.TODO, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const newTask = { id: 1, title: 'New', status: TaskStatus.TODO, created_at: new Date() };
     mockedApi.create.mockResolvedValue(newTask);
 
     const { result } = renderHook(() => useCreateTask(), { wrapper: createWrapper() });
@@ -87,7 +87,7 @@ describe('useUpdateTask', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('should update a task', async () => {
-    const updated = { id: 1, title: 'Updated', status: TaskStatus.DONE, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const updated = { id: 1, title: 'Updated', status: TaskStatus.DONE, created_at: new Date() };
     mockedApi.update.mockResolvedValue(updated);
 
     const { result } = renderHook(() => useUpdateTask(), { wrapper: createWrapper() });
