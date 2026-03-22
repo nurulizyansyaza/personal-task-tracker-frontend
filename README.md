@@ -41,12 +41,12 @@ Drag tasks between columns, create and edit them in modals, and watch status upd
 
 ### Prerequisites
 
-| Tool | Minimum Version |
-|------|-----------------|
-| **Node.js** | 18+ |
-| **npm** | 9+ |
+| Tool | Version | How to check | How to install |
+|------|---------|-------------|----------------|
+| Node.js | >= 18 | `node -v` | [nodejs.org](https://nodejs.org/) |
+| npm | >= 9 | `npm -v` | Included with Node.js |
 
-You also need the **backend API** running (or set `NEXT_PUBLIC_API_URL` to a remote instance).
+> **Note:** You also need the backend API running, or set `NEXT_PUBLIC_API_URL` to a remote instance.
 
 ### Install & Run
 
@@ -256,7 +256,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 
 ```mermaid
 flowchart LR
- Browser[" Browser"] --> CF_FE["CloudFront CDN<br/>(HTTPS)"]
+ Browser["Browser"] --> CF_FE["CloudFront CDN<br/>(HTTPS)"]
  CF_FE --> NGINX["Nginx :80<br/>(EC2 · us-east-1)"]
  NGINX -->|"/"| NextJS["Next.js :3001"]
  NGINX -->|"/tasks<br/>/api/docs"| CF_API["API CloudFront<br/>(ap-southeast-1)"]
@@ -300,3 +300,14 @@ Every user action produces feedback via **react-hot-toast**:
 ## License
 
 See the root [LICENSE](../LICENSE) file for details.
+
+---
+
+## Related Repositories
+
+| Repo | Description | Tests |
+|------|-------------|-------|
+| [personal-task-tracker](https://github.com/nurulizyansyaza/personal-task-tracker) | Orchestration — CI/CD, Docker, AWS infra | — |
+| [personal-task-tracker-core](https://github.com/nurulizyansyaza/personal-task-tracker-core) | Shared TypeScript library — types, validation, errors | 42 |
+| [personal-task-tracker-api](https://github.com/nurulizyansyaza/personal-task-tracker-api) | NestJS REST API with security middleware | 84 |
+| [personal-task-tracker-frontend](https://github.com/nurulizyansyaza/personal-task-tracker-frontend) | Next.js Kanban dashboard | 52 |
