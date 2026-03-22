@@ -17,6 +17,13 @@ jobs:
       - name: Checkout Frontend
         uses: actions/checkout@v4
 
+      - name: Checkout & Build Core
+        run: |
+          git clone https://github.com/nurulizyansyaza/personal-task-tracker-core.git ../personal-task-tracker-core
+          cd ../personal-task-tracker-core
+          npm ci
+          npm run build
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,7 +31,10 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          rm -rf node_modules/personal-task-tracker-core
+          cp -r ../personal-task-tracker-core node_modules/personal-task-tracker-core
 
       - name: Lint
         run: npm run lint
