@@ -2,8 +2,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+COPY personal-task-tracker-core ./personal-task-tracker-core
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 
