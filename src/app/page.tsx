@@ -7,7 +7,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">📋 Personal Task Tracker</h1>
+              <h1 className="text-xl font-bold text-gray-900">Personal Task Tracker</h1>
               <p className="text-xs text-gray-500 mt-0.5">Drag tasks between columns to update status</p>
             </div>
           </div>

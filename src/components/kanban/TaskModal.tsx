@@ -80,7 +80,7 @@ function TaskModalInner({
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <h2 className="text-lg font-bold text-gray-900">
-            {mode === 'create' ? '✨ New Task' : '✏️ Edit Task'}
+            {mode === 'create' ? 'New Task' : 'Edit Task'}
           </h2>
           <button
             onClick={handleClose}
@@ -137,9 +137,9 @@ function TaskModalInner({
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all text-gray-900"
               >
-                <option value={TaskStatus.TODO}>📋 To Do</option>
-                <option value={TaskStatus.IN_PROGRESS}>🔨 In Progress</option>
-                <option value={TaskStatus.DONE}>✅ Done</option>
+                <option value={TaskStatus.TODO}>To Do</option>
+                <option value={TaskStatus.IN_PROGRESS}>In Progress</option>
+                <option value={TaskStatus.DONE}>Done</option>
               </select>
             </div>
           )}

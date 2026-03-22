@@ -15,14 +15,14 @@ describe('TaskModal', () => {
     render(
       <TaskModal isOpen={false} mode="create" onClose={mockOnClose} onSubmit={mockOnSubmit} />
     );
-    expect(screen.queryByText('✨ New Task')).not.toBeInTheDocument();
+    expect(screen.queryByText('New Task')).not.toBeInTheDocument();
   });
 
   it('should render create mode', () => {
     render(
       <TaskModal isOpen={true} mode="create" onClose={mockOnClose} onSubmit={mockOnSubmit} />
     );
-    expect(screen.getByText('✨ New Task')).toBeInTheDocument();
+    expect(screen.getByText('New Task')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
     expect(screen.getByText('Create Task')).toBeInTheDocument();
   });
@@ -39,7 +39,7 @@ describe('TaskModal', () => {
     render(
       <TaskModal isOpen={true} mode="edit" task={task} onClose={mockOnClose} onSubmit={mockOnSubmit} />
     );
-    expect(screen.getByText('✏️ Edit Task')).toBeInTheDocument();
+    expect(screen.getByText('Edit Task')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Existing Task')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Existing desc')).toBeInTheDocument();
     expect(screen.getByText('Save Changes')).toBeInTheDocument();

@@ -6,24 +6,21 @@ import { Task, TaskStatus } from 'personal-task-tracker-core';
 import KanbanCard from './KanbanCard';
 import KanbanSkeleton from './KanbanSkeleton';
 
-const columnConfig: Record<TaskStatus, { title: string; emoji: string; headerColor: string; bgColor: string; countColor: string }> = {
+const columnConfig: Record<TaskStatus, { title: string; headerColor: string; bgColor: string; countColor: string }> = {
   [TaskStatus.TODO]: {
     title: 'To Do',
-    emoji: '📋',
     headerColor: 'bg-gray-100 text-gray-700',
     bgColor: 'bg-gray-50/50',
     countColor: 'bg-gray-200 text-gray-600',
   },
   [TaskStatus.IN_PROGRESS]: {
     title: 'In Progress',
-    emoji: '🔨',
     headerColor: 'bg-amber-50 text-amber-700',
     bgColor: 'bg-amber-50/30',
     countColor: 'bg-amber-100 text-amber-600',
   },
   [TaskStatus.DONE]: {
     title: 'Done',
-    emoji: '✅',
     headerColor: 'bg-emerald-50 text-emerald-700',
     bgColor: 'bg-emerald-50/30',
     countColor: 'bg-emerald-100 text-emerald-600',
@@ -56,7 +53,6 @@ export default function KanbanColumn({
       {/* Column header */}
       <div className={`flex items-center justify-between px-4 py-3 rounded-t-xl ${config.headerColor}`}>
         <div className="flex items-center gap-2">
-          <span className="text-base">{config.emoji}</span>
           <h3 className="font-semibold text-sm">{config.title}</h3>
           <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${config.countColor}`}>
             {tasks.length}
