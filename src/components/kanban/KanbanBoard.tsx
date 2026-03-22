@@ -73,8 +73,20 @@ export default function KanbanBoard() {
     const task = active.data.current?.task as Task | undefined;
     if (!task) return;
 
-    const targetStatus = over.id as TaskStatus;
-    if (!COLUMNS.includes(targetStatus) || task.status === targetStatus) return;
+    // over.id may be a column status (string) or a card task ID (number).
+    // Resolve to the target column status in both cases.
+    let targetStatus: TaskStatus | undefined;
+    if (COLUMNS.includes(over.id as TaskStatus)) {
+      targetStatus = over.id as TaskStatus;
+    } else {
+      // Dropped on a card — find which column that card belongs to
+      const overTask = over.data.current?.task as Task | undefined;
+      if (overTask) {
+        targetStatus = overTask.status;
+      }
+    }
+
+    if (!targetStatus || task.status === targetStatus) return;
 
     updateTask.mutate(
       { id: task.id, dto: { status: targetStatus } },
