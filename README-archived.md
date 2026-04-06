@@ -290,7 +290,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 |----------|:--------:|-------------|
 | `NEXT_PUBLIC_API_URL` | | Base URL for all API requests. Baked into the JS bundle at **build time**. |
 
-> **Deployed environments:** Set this to the **frontend's own domain** (same-origin), not the API domain directly. Nginx on the homelab server proxies `/tasks` and `/api/docs` to the API container.
+> **Deployed environments:** Set this to the **frontend's own CloudFront domain** (same-origin), not the API domain directly. Nginx on the EC2 instance proxies `/tasks` and `/api/docs` to the API CloudFront distribution.
 
 ---
 
@@ -300,26 +300,26 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 
 ```mermaid
 flowchart LR
- Browser["Browser"] --> NGX["Nginx<br/>(HTTPS)"]
- NGX --> NGINX["Nginx :80<br/>(Homelab Server)"]
+ Browser["Browser"] --> CF_FE["CloudFront CDN<br/>(HTTPS)"]
+ CF_FE --> NGINX["Nginx :80<br/>(EC2 · us-east-1)"]
  NGINX -->|"/"| NextJS["Next.js :3001"]
- NGINX -->|"/tasks<br/>/api/docs"| API_C["API Container<br/>(Homelab)"]
- API_C --> API["NestJS API :3000"]
+ NGINX -->|"/tasks<br/>/api/docs"| CF_API["API CloudFront<br/>(ap-southeast-1)"]
+ CF_API --> API["NestJS API :3000"]
 ```
 
 ### Deployed URLs
 
 | Environment | URL |
 |-------------|-----|
-| **Staging** | `https://nurulizyansyaza.com/staging/personal-task-tracker` |
-| **Production** | `https://nurulizyansyaza.com/personal-task-tracker` |
+| **Staging** | `https://d179mmtd1r518i.cloudfront.net` |
+| **Production** | `https://d1w6dngwkrqpvq.cloudfront.net` |
 
 ### How It Works
 
-1. **Nginx** terminates HTTPS via Let's Encrypt and caches static assets.
-2. **Nginx** on the homelab server routes requests:
+1. **CloudFront** terminates HTTPS and caches static assets.
+2. **Nginx** on an EC2 instance in `us-east-1` routes requests:
  - `/` → Next.js server (port 3001)
- - `/tasks` and `/api/docs` → API container on the same server
+ - `/tasks` and `/api/docs` → API CloudFront distribution in `ap-southeast-1`
 3. This **same-origin pattern** means the browser never calls a different domain — avoiding CORS issues entirely.
 
 Deployment is automated via the [orchestration repo](https://github.com/nurulizyansyaza/personal-task-tracker) CI/CD pipeline.
@@ -353,7 +353,7 @@ See the root [LICENSE](../LICENSE) file for details.
 
 | Repo | Description | Tests |
 |------|-------------|-------|
-| [personal-task-tracker](https://github.com/nurulizyansyaza/personal-task-tracker) | Orchestration — CI/CD, Docker, homelab infra | — |
+| [personal-task-tracker](https://github.com/nurulizyansyaza/personal-task-tracker) | Orchestration — CI/CD, Docker, AWS infra | — |
 | [personal-task-tracker-core](https://github.com/nurulizyansyaza/personal-task-tracker-core) | Shared TypeScript library — types, validation, errors | 42 |
 | [personal-task-tracker-api](https://github.com/nurulizyansyaza/personal-task-tracker-api) | NestJS REST API with security middleware | 84 |
 | [personal-task-tracker-frontend](https://github.com/nurulizyansyaza/personal-task-tracker-frontend) | Next.js Kanban dashboard | 94 |
