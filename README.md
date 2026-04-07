@@ -311,8 +311,8 @@ flowchart LR
 
 | Environment | URL |
 |-------------|-----|
-| **Staging** | `https://nurulizyansyaza.com/staging/personal-task-tracker` |
-| **Production** | `https://nurulizyansyaza.com/personal-task-tracker` |
+| **Staging** | `https://staging-ptt.nurulizyansyaza.com` |
+| **Production** | `https://ptt.nurulizyansyaza.com` |
 
 ### How It Works
 
